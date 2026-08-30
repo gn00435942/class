@@ -10,7 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-<header class="topbar"><div class="brand"><div class="logo">▦</div><div><div class="title">班級教學進度排程</div><div class="subtitle">Class Teaching Progress Scheduler · Cloud v6</div></div></div><div style="display:flex;align-items:center"><div class="toggle"><button id="weekBtn">週檢視</button><button id="monthBtn" class="active">月檢視</button></div><div class="authbox"><span id="authStatus" class="authstatus">未登入</span><button id="loginBtn" class="authbtn primary">登入</button><button id="logoutBtn" class="authbtn" style="display:none">登出</button></div></div></header>
+<header class="topbar"><div class="brand"><div class="logo">▦</div><div><div class="title">班級教學進度排程</div><div class="subtitle">Class Teaching Progress Scheduler · Cloud v6.2</div></div></div><div style="display:flex;align-items:center"><div class="toggle"><button id="weekBtn">週檢視</button><button id="monthBtn" class="active">月檢視</button></div><div class="authbox"><span id="authStatus" class="authstatus">未登入</span><button id="loginBtn" class="authbtn primary">登入</button><button id="logoutBtn" class="authbtn" style="display:none">登出</button></div></div></header>
 <div class="app"><aside class="side"><h3>班級管理</h3><div class="addrow"><input id="classInput" placeholder="例如 604"><button id="addClassBtn">新增</button></div><div id="classList"></div><div class="importbox"><h4>Google 日曆匯入</h4><p>可匯入 Google Calendar 匯出的 .ics 檔。支援一次選擇多個行事曆檔案，登入後會同步保存到 Supabase 雲端，其他電腦登入也能看到。</p><input id="icsInput" type="file" accept=".ics,text/calendar" multiple hidden><button id="importIcsBtn" class="importbtn">匯入 .ics 行事曆</button><button id="clearImportedBtn" class="clearbtn">清除已匯入行事曆</button><div id="importStatus" class="importstatus"></div></div></aside><main class="main"><div class="nav"><div class="navleft"><button id="prevBtn">‹</button><div id="periodLabel" class="monthlabel"></div><button id="nextBtn">›</button><button id="todayBtn">今天</button></div><div id="viewHint" class="hint">整月進度總覽</div></div><div id="schedule" class="content month"></div></main></div>
 
 <div id="loginModal" class="modalback"><div class="modal loginpanel"><h3>管理員登入</h3><div class="meta">登入後班級、教學進度與行事曆會與 Supabase 雲端同步。</div><input id="loginEmail" type="email" placeholder="Email"><input id="loginPassword" type="password" placeholder="密碼"><div id="loginError" class="cloudnote"></div><div class="actions"><button onclick="closeLogin()">取消</button><button id="doLoginBtn" class="primary">登入</button></div></div></div>
@@ -32,6 +32,7 @@ let mode='month', anchor=new Date(2026,8,1), editing=null,eventDate=null;
 const save=()=>{localStorage.setItem(K.classes,JSON.stringify(classes));localStorage.setItem(K.entries,JSON.stringify(entries));localStorage.setItem(K.events,JSON.stringify(events));};
 const pad=n=>String(n).padStart(2,'0'); const key=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; const wd=['日','一','二','三','四','五','六'];
 const sameDay=(a,b)=>a.toDateString()===b.toDateString(); const today=new Date();
+function calendarCutoff(){return `${new Date().getFullYear()-1}-01-01`}
 function toast(t){let e=document.getElementById('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1400)}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function monthWeeks(y,m){let first=new Date(y,m,1), last=new Date(y,m+1,0), start=new Date(first);start.setDate(first.getDate()-first.getDay());let end=new Date(last);end.setDate(last.getDate()+(6-last.getDay()));let out=[];for(let d=new Date(start);d<=end;){let w=[];for(let i=0;i<7;i++){w.push(new Date(d));d.setDate(d.getDate()+1)}out.push(w)}return out}
@@ -60,7 +61,7 @@ function parseIcsDate(raw){if(!raw)return null;let v=raw.trim();let m=v.match(/^
 function addDaysKey(dateKey,n){let [y,m,d]=dateKey.split('-').map(Number);let x=new Date(y,m-1,d);x.setDate(x.getDate()+n);return key(x)}
 function expandRRule(startKey,rrule,limitEnd){if(!rrule)return [startKey];let parts=Object.fromEntries(rrule.split(';').map(p=>{let i=p.indexOf('=');return [p.slice(0,i),p.slice(i+1)]}));let freq=parts.FREQ, interval=Number(parts.INTERVAL||1), count=Number(parts.COUNT||0), until=parseIcsDate(parts.UNTIL||'');let maxEnd=until||limitEnd;let out=[startKey], [y,m,d]=startKey.split('-').map(Number);let cur=new Date(y,m-1,d), guard=0;while(guard++<1500){if(count&&out.length>=count)break;if(freq==='DAILY')cur.setDate(cur.getDate()+interval);else if(freq==='WEEKLY')cur.setDate(cur.getDate()+7*interval);else if(freq==='MONTHLY')cur.setMonth(cur.getMonth()+interval);else if(freq==='YEARLY')cur.setFullYear(cur.getFullYear()+interval);else break;let k=key(cur);if(maxEnd&&k>maxEnd)break;if(!maxEnd&&out.length>=260)break;out.push(k)}return out}
 function parseICS(text,fileName){let lines=unfoldICS(text), result=[], ev=null;for(let line of lines){if(line==='BEGIN:VEVENT'){ev={};continue}if(line==='END:VEVENT'){if(ev&&ev.dtstart&&ev.summary){let start=parseIcsDate(ev.dtstart);if(start){let dates=expandRRule(start,ev.rrule,'2035-12-31');for(let date of dates)result.push({id:uid(),date,title:icsUnescape(ev.summary),source:'ics',calendar:fileName,icsUid:ev.uid||'',importedAt:Date.now()})}}ev=null;continue}if(!ev)continue;let idx=line.indexOf(':');if(idx<0)continue;let left=line.slice(0,idx), val=line.slice(idx+1);let prop=left.split(';')[0].toUpperCase();if(prop==='DTSTART')ev.dtstart=val;else if(prop==='SUMMARY')ev.summary=val;else if(prop==='RRULE')ev.rrule=val;else if(prop==='UID')ev.uid=val}return result}
-async function importICSFiles(files){if(!currentUser){toast('請先登入才能匯入並同步行事曆');openLogin();return}let all=[];for(let f of files){try{let text=await f.text();all.push(...parseICS(text,f.name))}catch(e){console.error(e)}}if(!all.length){toast('沒有讀到可匯入的事件');return}let existing=new Set(events.map(e=>`${e.date}|${e.title}`));let rows=[];for(let e of all){let sig=`${e.date}|${e.title}`;if(!existing.has(sig)){rows.push({event_date:e.date,title:e.title,source:'ics'});existing.add(sig)}}if(!rows.length){document.getElementById('importStatus').textContent=`沒有新增事件（共讀取 ${all.length} 筆，皆已存在）`;toast('沒有新的行事曆事件');return}let {data,error}=await sb.from('calendar_events').insert(rows).select('id,event_date,title,source');if(error){console.error(error);toast('行事曆上傳雲端失敗');return}for(let row of data)events.push({id:'dbe-'+row.id,dbId:row.id,date:row.event_date,title:row.title,source:row.source});save();renderSchedule();document.getElementById('importStatus').textContent=`已匯入並同步 ${data.length} 筆事件（共讀取 ${all.length} 筆）`;toast(`已同步 ${data.length} 筆行事曆事件到雲端`)}
+async function importICSFiles(files){if(!currentUser){toast('請先登入才能匯入並同步行事曆');openLogin();return}let all=[];for(let f of files){try{let text=await f.text();all.push(...parseICS(text,f.name))}catch(e){console.error(e)}}if(!all.length){toast('沒有讀到可匯入的事件');return}const cutoff=calendarCutoff();all=all.filter(e=>e.date>=cutoff);if(!all.length){document.getElementById('importStatus').textContent=`沒有符合範圍的事件（只保留 ${cutoff} 之後）`;toast('沒有符合保留範圍的事件');return}let {data:cloud,error:cloudError}=await sb.from('calendar_events').select('event_date,title,source').gte('event_date',cutoff);if(cloudError){console.error(cloudError);toast('讀取雲端行事曆失敗');return}let existing=new Set((cloud||[]).map(e=>`${e.event_date}|${e.title}|${e.source||'ics'}`));let rows=[];for(let e of all){let sig=`${e.date}|${e.title}|ics`;if(!existing.has(sig)){rows.push({event_date:e.date,title:e.title,source:'ics'});existing.add(sig)}}if(!rows.length){document.getElementById('importStatus').textContent=`沒有新增事件（符合範圍 ${all.length} 筆，皆已存在）`;toast('沒有新的行事曆事件');await syncCalendarFromCloud();return}let {data,error}=await sb.from('calendar_events').insert(rows).select('id,event_date,title,source');if(error){console.error(error);toast('行事曆上傳雲端失敗');return}await syncCalendarFromCloud();document.getElementById('importStatus').textContent=`已新增 ${data.length} 筆事件；只保留 ${cutoff} 之後資料`;toast(`已同步 ${data.length} 筆行事曆事件到雲端`)}
 async function clearImported(){let n=events.filter(e=>e.source==='ics').length;if(!n){toast('目前沒有匯入的行事曆');return}if(!confirm(`確定清除 ${n} 筆由 .ics 匯入的事件？手動新增的事件會保留。`))return;if(!currentUser){toast('請先登入才能清除雲端行事曆');openLogin();return}let {error}=await sb.from('calendar_events').delete().eq('source','ics');if(error){console.error(error);toast('清除雲端行事曆失敗');return}events=events.filter(e=>e.source!=='ics');save();renderSchedule();document.getElementById('importStatus').textContent='已清除雲端匯入的行事曆事件';toast('已清除雲端匯入事件')}
 
 function openLogin(){document.getElementById('loginError').textContent='';document.getElementById('loginModal').classList.add('show');setTimeout(()=>document.getElementById('loginEmail').focus(),0)}
@@ -94,28 +95,44 @@ entries=data.map(row=>{
 }).filter(e=>classes.some(c=>c.id===e.classId));
 save();render();
 }
+async function fetchCalendarEventsFromCutoff(){
+  const pageSize=1000, cutoff=calendarCutoff();let from=0;let all=[];
+  while(true){
+    let {data,error}=await sb.from('calendar_events')
+      .select('id,event_date,title,source')
+      .gte('event_date',cutoff)
+      .order('event_date',{ascending:true})
+      .order('id',{ascending:true})
+      .range(from,from+pageSize-1);
+    if(error)return {data:null,error};
+    all.push(...(data||[]));
+    if(!data||data.length<pageSize)break;
+    from+=pageSize;
+  }
+  return {data:all,error:null};
+}
 async function syncCalendarFromCloud(){
 if(!currentUser)return;
-let {data,error}=await sb.from('calendar_events').select('id,event_date,title,source').order('event_date');
+let {data,error}=await fetchCalendarEventsFromCutoff();
 if(error){console.error(error);toast('讀取雲端行事曆失敗');return}
 if(!data.length){
   let localRows=[];let seen=new Set();
   for(let e of events){
-    if(e.source==='sample'||!e.date||!e.title)continue;
+    if(e.source==='sample'||!e.date||!e.title||e.date<calendarCutoff())continue;
     let sig=`${e.date}|${e.title}`;if(seen.has(sig))continue;seen.add(sig);
     localRows.push({event_date:e.date,title:e.title,source:e.source==='ics'?'ics':'manual'});
   }
   if(localRows.length){
     let seeded=await sb.from('calendar_events').insert(localRows);
     if(seeded.error){console.error(seeded.error);toast('初次上傳行事曆失敗');return}
-    let r=await sb.from('calendar_events').select('id,event_date,title,source').order('event_date');
-    if(r.error){console.error(r.error);return}
+    let r=await fetchCalendarEventsFromCutoff();
+    if(r.error){console.error(r.error);toast('重新讀取雲端行事曆失敗');return}
     data=r.data;
   }
 }
 events=data.map(row=>({id:'dbe-'+row.id,dbId:row.id,date:row.event_date,title:row.title,source:row.source||'manual'}));
 save();renderSchedule();
-document.getElementById('importStatus').textContent=`雲端行事曆已同步，共 ${events.length} 筆事件`;
+document.getElementById('importStatus').textContent=`雲端行事曆已同步：${calendarCutoff()} 之後，共 ${events.length} 筆事件`;
 }
 async function initAuth(){let {data}=await sb.auth.getSession();currentUser=data.session?.user||null;updateAuthUI();if(currentUser){await syncClassesFromCloud();await syncProgressFromCloud();await syncCalendarFromCloud()}}
 
