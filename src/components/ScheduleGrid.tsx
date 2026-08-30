@@ -91,7 +91,7 @@ export default function ScheduleGrid({
                 <th
                   key={key}
                   className={`group cursor-pointer border-b border-l border-slate-200 bg-violet-50/95 px-1.5 py-1.5 align-top backdrop-blur transition hover:bg-violet-100/95 ${
-                    weekend ? 'bg-violet-100/60' : ''
+                    weekend ? 'bg-violet-100/90' : ''
                   }`}
                   style={{ width: colWidth, minWidth: colWidth, height: 40 }}
                   onClick={() => onEventCellClick(key)}
@@ -135,7 +135,7 @@ export default function ScheduleGrid({
                 <th
                   key={formatDateKey(d)}
                   className={`border-b border-l border-slate-200 bg-white px-2 py-2 text-center ${
-                    weekend ? 'bg-red-50/40' : ''
+                    weekend ? 'bg-red-100/70' : ''
                   }`}
                   style={{ width: colWidth, minWidth: colWidth }}
                 >
@@ -205,7 +205,7 @@ export default function ScheduleGrid({
                     <td
                       key={key}
                       className={`group relative cursor-pointer border-b border-l border-slate-200 px-2 py-1.5 align-top transition hover:bg-blue-50/60 ${
-                        weekend ? 'bg-red-50/30' : ''
+                        weekend ? 'bg-red-50/90' : ''
                       } ${today ? 'bg-blue-50/30' : ''}`}
                       style={{ width: colWidth, minWidth: colWidth, height: rowHeight }}
                       onClick={() => onCellClick(cls.id, key)}

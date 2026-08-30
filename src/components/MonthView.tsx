@@ -106,7 +106,7 @@ export default function MonthView({
                           <th
                             key={key}
                             className={`group cursor-pointer border-b border-l border-slate-200 bg-violet-50/95 px-1 py-1 align-top transition hover:bg-violet-100/95 ${COL_WIDTH} ${
-                              weekend ? 'bg-violet-100/60' : ''
+                              weekend ? 'bg-violet-100/90' : ''
                             }`}
                             style={{ height: 28 }}
                             onClick={() => onEventCellClick(key)}
@@ -157,7 +157,7 @@ export default function MonthView({
                           <th
                             key={formatDateKey(d)}
                             className={`border-b border-l border-slate-200 bg-white px-1 py-1 text-center ${COL_WIDTH} ${
-                              weekend ? 'bg-red-50/40' : ''
+                              weekend ? 'bg-red-100/70' : ''
                             }`}
                           >
                             <div className="flex flex-col items-center">
@@ -228,7 +228,7 @@ export default function MonthView({
                               <td
                                 key={key}
                                 className={`group relative cursor-pointer border-b border-l border-slate-200 px-0.5 py-0 align-middle transition hover:bg-blue-50/60 ${COL_WIDTH} ${
-                                  weekend ? 'bg-red-50/30' : ''
+                                  weekend ? 'bg-red-50/90' : ''
                                 } ${today ? 'bg-blue-50/30' : ''}`}
                                 style={{ height: 30 }}
                                 onClick={() => onCellClick(cls.id, key)}
