@@ -10,7 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-<header class="topbar"><div class="brand"><div class="logo">▦</div><div><div class="title">班級教學進度排程</div><div class="subtitle">Class Teaching Progress Scheduler · Cloud v6.3.2</div></div></div><div style="display:flex;align-items:center"><div class="toggle"><button id="weekBtn">週檢視</button><button id="monthBtn" class="active">月檢視</button></div><div class="authbox"><span id="authStatus" class="authstatus">未登入</span><button id="loginBtn" class="authbtn primary">登入</button><button id="logoutBtn" class="authbtn" style="display:none">登出</button></div></div></header>
+<header class="topbar"><div class="brand"><div class="logo">▦</div><div><div class="title">班級教學進度排程</div><div class="subtitle">Class Teaching Progress Scheduler · Cloud v6.3.3</div></div></div><div style="display:flex;align-items:center"><div class="toggle"><button id="weekBtn">週檢視</button><button id="monthBtn" class="active">月檢視</button></div><div class="authbox"><span id="authStatus" class="authstatus">未登入</span><button id="loginBtn" class="authbtn primary">登入</button><button id="logoutBtn" class="authbtn" style="display:none">登出</button></div></div></header>
 <div class="app"><aside class="side"><h3>班級管理</h3><div class="addrow"><input id="classInput" placeholder="例如 604"><button id="addClassBtn">新增</button></div><div id="classList"></div><div class="importbox"><h4>Google 日曆匯入</h4><p>可匯入 Google Calendar 匯出的 .ics 檔。支援一次選擇多個行事曆檔案，登入後會同步保存到 Supabase 雲端，其他電腦登入也能看到。</p><input id="icsInput" type="file" accept=".ics,text/calendar" multiple hidden><button id="importIcsBtn" class="importbtn">匯入 .ics 行事曆</button><button id="clearImportedBtn" class="clearbtn">清除已匯入行事曆</button><div id="importStatus" class="importstatus"></div></div></aside><main class="main"><div class="nav"><div class="navleft"><button id="prevBtn">‹</button><div id="periodLabel" class="monthlabel"></div><button id="nextBtn">›</button><button id="todayBtn">今天</button></div><div id="viewHint" class="hint">整月進度總覽</div></div><div id="schedule" class="content month"></div></main></div>
 
 <div id="loginModal" class="modalback"><div class="modal loginpanel"><h3>管理員登入</h3><div class="meta">登入後班級、教學進度與行事曆會與 Supabase 雲端同步。</div><input id="loginEmail" type="email" placeholder="Email"><input id="loginPassword" type="password" placeholder="密碼"><div id="loginError" class="cloudnote"></div><div class="actions"><button onclick="closeLogin()">取消</button><button id="doLoginBtn" class="primary">登入</button></div></div></div>
@@ -139,6 +139,15 @@ document.getElementById('importStatus').textContent=`雲端行事曆已同步：
 async function initAuth(){let {data}=await sb.auth.getSession();currentUser=data.session?.user||null;updateAuthUI();if(currentUser){await syncClassesFromCloud();await syncProgressFromCloud();await syncCalendarFromCloud()}}
 
 function render(){renderClasses();renderSchedule()}
+document.getElementById('progressInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    e.stopPropagation();
+    // Do NOT preventDefault: textarea keeps its native newline behavior.
+  }
+});
+document.getElementById('progressInput').addEventListener('keypress',e=>{
+  if(e.key==='Enter') e.stopPropagation();
+});
 document.getElementById('loginBtn').onclick=openLogin;document.getElementById('logoutBtn').onclick=logout;document.getElementById('doLoginBtn').onclick=login;document.getElementById('loginPassword').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
 document.getElementById('addClassBtn').onclick=addClass;document.getElementById('classInput').addEventListener('keydown',e=>{if(e.key==='Enter')addClass()});document.getElementById('weekBtn').onclick=()=>setMode('week');document.getElementById('monthBtn').onclick=()=>setMode('month');document.getElementById('prevBtn').onclick=()=>changePeriod(-1);document.getElementById('nextBtn').onclick=()=>changePeriod(1);document.getElementById('todayBtn').onclick=()=>{anchor=new Date();renderSchedule()};document.getElementById('saveProgress').onclick=saveProgress;document.getElementById('deleteProgress').onclick=deleteProgress;document.getElementById('addEvent').onclick=addEvent;document.getElementById('importIcsBtn').onclick=()=>document.getElementById('icsInput').click();document.getElementById('icsInput').addEventListener('change',e=>{importICSFiles([...e.target.files]);e.target.value=''});document.getElementById('clearImportedBtn').onclick=clearImported;document.getElementById('eventInput').addEventListener('keydown',e=>{if(e.key==='Enter')addEvent()});document.querySelectorAll('.modalback').forEach(x=>x.addEventListener('click',e=>{if(e.target===x){x.classList.remove('show');editing=null;eventDate=null}}));render();initAuth();
 </script>
