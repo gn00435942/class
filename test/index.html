@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>測試版載入中</title></head>
+<body>
+<p>正在載入 staging 測試版…</p>
+<script>
+fetch('https://raw.githubusercontent.com/gn00435942/class/staging/index.html?ts=' + Date.now(), {cache:'no-store'})
+  .then(r => { if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
+  .then(html => { document.open(); document.write(html); document.close(); })
+  .catch(err => { document.body.innerHTML = '<h2>測試版載入失敗</h2><p>'+err.message+'</p>'; });
+</script>
+</body>
+</html>
