@@ -1,17 +1,1 @@
-<!doctype html>
-<html lang="zh-Hant">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>v6.4.2 TEST</title></head>
-<body><p>正在載入 v6.4.2 TEST…</p>
-<script>
-(async()=>{
- try{
-  const r=await fetch('https://raw.githubusercontent.com/gn00435942/class/staging/index.html?ts='+Date.now(),{cache:'no-store'});
-  if(!r.ok)throw new Error('HTTP '+r.status);
-  let html=await r.text();
-  html=html.replace(/Cloud v6\.3\.3/g,'Cloud v6.4.2 TEST');
-  html=html.replace('</head>','<link rel="stylesheet" href="/class/test/workspace.css?v=642b"></head>');
-  document.open();document.write(html);document.close();
-  const s=document.createElement('script');s.src='/class/test/workspace.js?v=642b';document.body.appendChild(s);
- }catch(err){document.body.innerHTML='<h2>測試版載入失敗</h2><p>'+err.message+'</p>'}
-})();
-</script></body></html>
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>v6.4.2 TEST</title></head><body><p>正在載入 v6.4.2 TEST…</p><script>(async()=>{try{const r=await fetch('https://raw.githubusercontent.com/gn00435942/class/staging/index.html?ts='+Date.now(),{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);const html=await r.text();document.open();document.write(html);document.close();const s=document.createElement('script');s.src='/class/test/v642.js?v=clean1';document.body.appendChild(s)}catch(e){document.body.innerHTML='<h2>測試版載入失敗</h2><p>'+e.message+'</p>'}})();</script></body></html>
