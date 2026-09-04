@@ -1,0 +1,2 @@
+ChatGPT GitHub 自動更新測試成功。
+此檔案僅用來確認寫入權限，不影響網站 index.html。
