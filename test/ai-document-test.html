@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI 文件解析連線測試</title>
+<style>body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;background:#f4f7fb;color:#25334a;margin:0;padding:28px}.box{max-width:820px;margin:auto;background:#fff;border:1px solid #dbe3ef;border-radius:12px;padding:22px}h1{font-size:22px;margin-top:0}.note{color:#64748b;line-height:1.7}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:18px 0}button{border:0;border-radius:8px;background:#7c3aed;color:white;padding:10px 16px;font-weight:700;cursor:pointer}button:disabled{opacity:.55;cursor:wait}pre{white-space:pre-wrap;word-break:break-word;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;min-height:100px}.ok{color:#166534}.err{color:#b91c1c}</style>
+</head>
+<body><div class="box"><h1>AI 文件解析連線測試</h1><div class="note">這頁只測試「瀏覽器 → Supabase Edge Function → OpenAI → 結構化結果」。不會寫入項目控管資料。請先在正式班級進度網站登入同一個帳號。</div><div class="row"><input id="files" type="file" multiple accept=".pdf,.doc,.docx,.rtf,.odt,.txt,.md,.csv,.xls,.xlsx,image/jpeg,image/png,image/webp,image/gif"><button id="go">✨ 開始解析</button></div><div id="status" class="note">尚未開始</div><pre id="out"></pre></div>
+<script>
+const REF='tiirqeoptszgnexzpigw';
+const URL='https://'+REF+'.supabase.co';
+const KEY='sb_publishable_bVKOO37mrGJDKW3tEMxKOQ_s7nOfITn';
+const $=id=>document.getElementById(id);
+function accessToken(){
+  const key=Object.keys(localStorage).find(k=>k===`sb-${REF}-auth-token`||k.startsWith(`sb-${REF}-auth-token`));
+  if(!key)return '';
+  try{const x=JSON.parse(localStorage.getItem(key)||'{}');return x.access_token||x.currentSession?.access_token||''}catch{return ''}
+}
+function b64(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result).split(',')[1]||'');r.onerror=reject;r.readAsDataURL(file)})}
+$('go').onclick=async()=>{
+  const fs=[...$('files').files];
+  if(!fs.length){alert('請先選擇至少一個文件');return}
+  const token=accessToken();
+  if(!token){$('status').className='err';$('status').textContent='找不到登入狀態。請先到正式班級進度網站登入，再回來重新整理此頁。';return}
+  $('go').disabled=true;$('status').className='note';$('status').textContent='正在讀取文件並交給 AI 分析…';$('out').textContent='';
+  try{
+    const files=[];for(const f of fs)files.push({name:f.name,mimeType:f.type||'application/octet-stream',dataBase64:await b64(f)});
+    const res=await fetch(`${URL}/functions/v1/analyze-document`,{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':`Bearer ${token}`},body:JSON.stringify({files})});
+    const data=await res.json().catch(()=>({error:'伺服器回傳非 JSON'}));
+    if(!res.ok)throw new Error(data.error||`HTTP ${res.status}${data.providerStatus?' / OpenAI '+data.providerStatus:''}`);
+    $('status').className='ok';$('status').textContent=`解析成功 · 模型：${data.model||'未知'}`;$('out').textContent=JSON.stringify(data.result,null,2);
+  }catch(e){$('status').className='err';$('status').textContent='解析失敗：'+(e?.message||e);$('out').textContent='';}
+  finally{$('go').disabled=false}
+};
+</script></body></html>
