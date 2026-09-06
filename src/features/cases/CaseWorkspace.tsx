@@ -1,8 +1,9 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
-import { Archive, BriefcaseBusiness, LogIn, LogOut, Plus, RefreshCw, Save, X } from 'lucide-react';
+import { Archive, BriefcaseBusiness, FileArchive, LogIn, LogOut, Plus, RefreshCw, Save, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { archiveCase, createCase, listCases, updateCase } from './repository';
 import CaseOperations from './CaseOperations';
+import CasePackageImporter from './CasePackageImporter';
 import type { CaseAggregate } from './models';
 import type { CaseStatus } from './types';
 
@@ -53,6 +54,7 @@ export default function CaseWorkspace() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT);
   const [editing, setEditing] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
 
@@ -199,7 +201,10 @@ export default function CaseWorkspace() {
       <aside className="flex w-80 shrink-0 flex-col border-r border-slate-200 bg-white">
         <div className="flex items-center justify-between border-b border-slate-200 p-4">
           <div><h2 className="font-semibold">案件清單</h2><p className="text-xs text-slate-400">{cases.length} 件未封存案件</p></div>
-          <button onClick={beginNew} className="rounded-md bg-blue-600 p-2 text-white" title="新增案件"><Plus className="h-4 w-4" /></button>
+          <div className="flex gap-2">
+            <button onClick={() => setImporting(true)} className="rounded-md border border-blue-200 p-2 text-blue-600" title="匯入案件 ZIP"><FileArchive className="h-4 w-4" /></button>
+            <button onClick={beginNew} className="rounded-md bg-blue-600 p-2 text-white" title="新增案件"><Plus className="h-4 w-4" /></button>
+          </div>
         </div>
         <div className="flex-1 overflow-y-auto p-2">
           {cases.map((item) => (
@@ -250,6 +255,15 @@ export default function CaseWorkspace() {
           <div className="grid h-full place-items-center text-center text-slate-400"><div><BriefcaseBusiness className="mx-auto mb-3 h-10 w-10" /><p>新增第一個案件，或稍後匯入案件 ZIP</p></div></div>
         )}
       </main>
+
+      <CasePackageImporter
+        open={importing}
+        onClose={() => setImporting(false)}
+        onImported={async (caseId) => {
+          setSelectedId(caseId);
+          await load();
+        }}
+      />
 
       {editing && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-slate-900/40 p-4">
