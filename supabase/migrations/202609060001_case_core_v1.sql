@@ -116,12 +116,12 @@ end;
 $function$;
 
 create or replace function public.normalize_case_subject()
-returns trigger language plpgsql as $
+returns trigger language plpgsql as $function$
 begin
   new.normalized_subject = lower(regexp_replace(trim(new.subject), '[[:space:][:punct:]]+', '', 'g'));
   return new;
 end;
-$;
+$function$;
 
 drop trigger if exists cases_normalize_subject on public.cases;
 create trigger cases_normalize_subject before insert or update of subject on public.cases
