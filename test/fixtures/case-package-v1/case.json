@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "1.0",
+  "packageId": "6f2487d3-88d5-4cb8-a453-7c71171588e2",
+  "generatedAt": "2026-09-06T12:00:00Z",
+  "generator": "ChatGPT Case Package Fixture",
+  "case": {
+    "receiveDate": "2026-09-01",
+    "externalKey": "新北體學字第1150000001號",
+    "subject": "115學年度運動代表隊補助申請",
+    "content": "依公文彙整申請資料、學生名冊及自我檢核表，於期限內完成線上與紙本送件。",
+    "note": "本測試案件僅供 Case Package V1 驗證使用。",
+    "status": "open"
+  },
+  "deliveries": [
+    {
+      "id": "delivery-online",
+      "channel": "線上系統",
+      "deadline": "2026-09-12",
+      "status": "open",
+      "detail": "上傳申請表與學生名冊。"
+    },
+    {
+      "id": "delivery-paper",
+      "channel": "紙本送件",
+      "deadline": "2026-09-15",
+      "status": "open",
+      "detail": "核章後寄送申請表及自我檢核表。"
+    }
+  ],
+  "documents": [
+    {
+      "id": "doc-application",
+      "name": "補助申請表",
+      "format": "docx",
+      "sourceType": "chatgpt_output",
+      "reference": "附件1",
+      "status": "draft",
+      "deliveryIds": [
+        "delivery-online",
+        "delivery-paper"
+      ]
+    },
+    {
+      "id": "doc-roster",
+      "name": "學生名冊",
+      "format": "xlsx",
+      "sourceType": "chatgpt_output",
+      "reference": "附件2",
+      "status": "draft",
+      "deliveryIds": [
+        "delivery-online"
+      ]
+    },
+    {
+      "id": "doc-checklist",
+      "name": "自我檢核表",
+      "format": "docx",
+      "sourceType": "reconstructed",
+      "reference": "公文附錄",
+      "status": "missing",
+      "deliveryIds": [
+        "delivery-paper"
+      ]
+    }
+  ],
+  "artifacts": [],
+  "warnings": [
+    "測試包未附實體二進位文件；匯入器單元測試應先驗證純資料流程。",
+    "自我檢核表待取得正式範本後更新。"
+  ]
+}
