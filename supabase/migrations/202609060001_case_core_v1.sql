@@ -108,12 +108,12 @@ create table if not exists public.case_imports (
 create index if not exists case_imports_user_created_idx on public.case_imports(user_id, created_at desc);
 
 create or replace function public.set_updated_at()
-returns trigger language plpgsql as $$
+returns trigger language plpgsql as $function$
 begin
   new.updated_at = now();
   return new;
 end;
-$$;
+$function$;
 
 create or replace function public.normalize_case_subject()
 returns trigger language plpgsql as $
