@@ -41,6 +41,7 @@ jobs:
           if-no-files-found: error
       - name: Publish compiled files for branch-based Pages
         run: |
+          git checkout -- index.html
           mkdir -p next/assets
           cp dist/index.html next/index.html
           cp -R dist/assets/. next/assets/
