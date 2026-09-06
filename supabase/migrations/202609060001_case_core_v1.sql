@@ -115,6 +115,18 @@ begin
 end;
 $$;
 
+create or replace function public.normalize_case_subject()
+returns trigger language plpgsql as $
+begin
+  new.normalized_subject = lower(regexp_replace(trim(new.subject), '[[:space:][:punct:]]+', '', 'g'));
+  return new;
+end;
+$;
+
+drop trigger if exists cases_normalize_subject on public.cases;
+create trigger cases_normalize_subject before insert or update of subject on public.cases
+for each row execute function public.normalize_case_subject();
+
 drop trigger if exists cases_set_updated_at on public.cases;
 create trigger cases_set_updated_at before update on public.cases
 for each row execute function public.set_updated_at();
