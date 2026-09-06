@@ -1,0 +1,283 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gn00435942.github.io/class/schemas/case-package-v1.schema.json",
+  "title": "Case Package V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "packageId",
+    "generatedAt",
+    "case",
+    "deliveries",
+    "documents",
+    "artifacts",
+    "warnings"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "packageId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "generator": {
+      "type": "string",
+      "minLength": 1
+    },
+    "case": {
+      "$ref": "#/$defs/case"
+    },
+    "deliveries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/delivery"
+      }
+    },
+    "documents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/document"
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/artifact"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "$defs": {
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receiveDate",
+        "externalKey",
+        "subject",
+        "content",
+        "note",
+        "status"
+      ],
+      "properties": {
+        "receiveDate": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "externalKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "subject": {
+          "type": "string",
+          "minLength": 1
+        },
+        "content": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "open",
+            "doing",
+            "done",
+            "archived"
+          ]
+        }
+      }
+    },
+    "delivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "channel",
+        "deadline",
+        "status",
+        "detail"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "channel": {
+          "type": "string",
+          "minLength": 1
+        },
+        "deadline": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "status": {
+          "enum": [
+            "open",
+            "doing",
+            "done"
+          ]
+        },
+        "detail": {
+          "type": "string"
+        }
+      }
+    },
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "format",
+        "sourceType",
+        "reference",
+        "status",
+        "deliveryIds"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "format": {
+          "enum": [
+            "doc",
+            "docx",
+            "xls",
+            "xlsx",
+            "pdf",
+            "csv",
+            "txt",
+            "paper",
+            "online_form",
+            "other"
+          ]
+        },
+        "sourceType": {
+          "enum": [
+            "official_template",
+            "reconstructed",
+            "generated",
+            "user_upload",
+            "chatgpt_output"
+          ]
+        },
+        "reference": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "missing",
+            "draft",
+            "ready",
+            "submitted"
+          ]
+        },
+        "deliveryIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "documentId",
+        "path",
+        "fileName",
+        "mediaType",
+        "byteSize",
+        "sha256",
+        "role",
+        "sourceType",
+        "versionLabel",
+        "isCurrent"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "documentId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^files/[A-Za-z0-9._() -]+$"
+        },
+        "fileName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mediaType": {
+          "type": "string",
+          "minLength": 1
+        },
+        "byteSize": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 104857600
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "role": {
+          "enum": [
+            "template",
+            "draft",
+            "final"
+          ]
+        },
+        "sourceType": {
+          "enum": [
+            "official_template",
+            "reconstructed",
+            "generated",
+            "user_upload",
+            "chatgpt_output"
+          ]
+        },
+        "versionLabel": {
+          "type": "string",
+          "minLength": 1
+        },
+        "isCurrent": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}
