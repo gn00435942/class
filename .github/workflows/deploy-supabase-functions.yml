@@ -37,14 +37,11 @@ jobs:
           test -n "$SUPABASE_ACCESS_TOKEN" || { echo "SUPABASE_ACCESS_TOKEN is missing" >&2; exit 1; }
           test -n "$SUPABASE_PROJECT_ID" || { echo "SUPABASE_PROJECT_ID is missing" >&2; exit 1; }
 
-      - name: Deploy analyze-document through Supabase Management API
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Deploy analyze-document
         shell: bash
-        run: |
-          set -euo pipefail
-          metadata='{"name":"analyze-document","entrypoint_path":"index.ts","verify_jwt":true}'
-          curl --fail-with-body --silent --show-error \
-            --request POST \
-            --url "https://api.supabase.com/v1/projects/${SUPABASE_PROJECT_ID}/functions/deploy?slug=analyze-document" \
-            --header "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
-            --form "metadata=${metadata};type=application/json" \
-            --form "file=@supabase/functions/analyze-document/index.ts;filename=index.ts;type=application/typescript"
+        run: supabase functions deploy analyze-document --project-ref "$SUPABASE_PROJECT_ID" --use-api
