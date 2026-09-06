@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, CalendarRange, CalendarDays } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CalendarRange, CalendarDays, BriefcaseBusiness } from 'lucide-react';
 import ClassPanel from '@/components/ClassPanel';
 import ScheduleGrid from '@/components/ScheduleGrid';
 import ProgressEditor from '@/components/ProgressEditor';
 import CalendarEventEditor from '@/components/CalendarEventEditor';
+import CaseWorkspace from '@/features/cases/CaseWorkspace';
 import { useLocalStorage, uid } from '@/lib/storage';
 import {
   formatDateKey,
@@ -42,6 +43,7 @@ export default function App() {
   const [classes, setClasses] = useLocalStorage<ClassInfo[]>('tp.classes', DEFAULT_CLASSES);
   const [entries, setEntries] = useLocalStorage<ProgressEntry[]>('tp.entries', []);
   const [events, setEvents] = useLocalStorage<CalendarEvent[]>('tp.events', buildDefaultEvents(2026, 8));
+  const [workspace, setWorkspace] = useState<'schedule' | 'cases'>('schedule');
   const [viewMode, setViewMode] = useState<ViewMode>('month');
   const [anchor, setAnchor] = useState<Date>(new Date(2026, 8, 1));
 
@@ -146,8 +148,22 @@ export default function App() {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* View toggle */}
           <div className="flex rounded-md border border-slate-200 p-0.5">
+            <button
+              onClick={() => setWorkspace('schedule')}
+              className={`flex items-center gap-1 rounded px-3 py-1.5 text-xs font-medium transition ${workspace === 'schedule' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:bg-slate-50'}`}
+            >
+              <CalendarRange className="h-3.5 w-3.5" />教學排程
+            </button>
+            <button
+              onClick={() => setWorkspace('cases')}
+              className={`flex items-center gap-1 rounded px-3 py-1.5 text-xs font-medium transition ${workspace === 'cases' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:bg-slate-50'}`}
+            >
+              <BriefcaseBusiness className="h-3.5 w-3.5" />案件控管
+            </button>
+          </div>
+          {/* View toggle */}
+          {workspace === 'schedule' && <div className="flex rounded-md border border-slate-200 p-0.5">
             <button
               onClick={() => setViewMode('week')}
               className={`flex items-center gap-1 rounded px-3 py-1.5 text-xs font-medium transition ${
@@ -166,7 +182,7 @@ export default function App() {
               <CalendarRange className="h-3.5 w-3.5" />
               月檢視
             </button>
-          </div>
+          </div>}
         </div>
       </header>
 
@@ -224,6 +240,7 @@ export default function App() {
           </div>
         </main>
       </div>
+      )}
 
       <ProgressEditor
         open={!!editor}
