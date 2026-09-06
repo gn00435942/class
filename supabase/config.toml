@@ -1,0 +1,5 @@
+project_id = "class"
+
+[functions.analyze-document]
+verify_jwt = true
+entrypoint = "./functions/analyze-document/index.ts"
