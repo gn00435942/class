@@ -1,7 +1,8 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
-import { Archive, BriefcaseBusiness, LogIn, Plus, RefreshCw, Save, X } from 'lucide-react';
+import { Archive, BriefcaseBusiness, LogIn, LogOut, Plus, RefreshCw, Save, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { archiveCase, createCase, listCases, updateCase } from './repository';
+import CaseOperations from './CaseOperations';
 import type { CaseAggregate } from './models';
 import type { CaseStatus } from './types';
 
@@ -212,9 +213,14 @@ export default function CaseWorkspace() {
           ))}
           {!cases.length && !busy && <div className="p-6 text-center text-sm text-slate-400">尚無案件</div>}
         </div>
-        <button onClick={() => void load()} disabled={busy} className="m-3 flex items-center justify-center gap-2 rounded-md border py-2 text-xs text-slate-500">
-          <RefreshCw className={`h-3.5 w-3.5 ${busy ? 'animate-spin' : ''}`} />重新整理
-        </button>
+        <div className="m-3 grid grid-cols-2 gap-2">
+          <button onClick={() => void load()} disabled={busy} className="flex items-center justify-center gap-2 rounded-md border py-2 text-xs text-slate-500">
+            <RefreshCw className={`h-3.5 w-3.5 ${busy ? 'animate-spin' : ''}`} />重新整理
+          </button>
+          <button onClick={() => void supabase.auth.signOut()} className="flex items-center justify-center gap-2 rounded-md border py-2 text-xs text-slate-500">
+            <LogOut className="h-3.5 w-3.5" />登出
+          </button>
+        </div>
       </aside>
 
       <main className="min-w-0 flex-1 overflow-y-auto p-6">
@@ -237,7 +243,8 @@ export default function CaseWorkspace() {
               <div><h3 className="text-xs font-semibold text-slate-400">繳交管道</h3><p className="mt-2 text-2xl font-semibold">{selected.deliveries.length}</p></div>
               <div><h3 className="text-xs font-semibold text-slate-400">繳交文件</h3><p className="mt-2 text-2xl font-semibold">{selected.documents.length}</p></div>
             </section>
-            {selected.note && <section className="rounded-lg bg-amber-50 p-4 text-sm text-amber-900">{selected.note}</section>}
+            {selected.note && <section className="mb-5 rounded-lg bg-amber-50 p-4 text-sm text-amber-900">{selected.note}</section>}
+            <CaseOperations item={selected} reload={load} report={setNotice} />
           </div>
         ) : (
           <div className="grid h-full place-items-center text-center text-slate-400"><div><BriefcaseBusiness className="mx-auto mb-3 h-10 w-10" /><p>新增第一個案件，或稍後匯入案件 ZIP</p></div></div>
