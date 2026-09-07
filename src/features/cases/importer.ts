@@ -1,9 +1,16 @@
 import { supabase } from '@/lib/supabase';
 import { createCase, createDelivery, createDocument, uploadDocumentVersion } from './repository';
 import type { CasePackageV1 } from './types';
+
+const importedDocumentStatus = {
+  missing: 'not_started',
+  draft: 'in_progress',
+  ready: 'completed',
+  submitted: 'submitted',
+} as const;
 import { readSafeZip } from './zip';
 
-const allowedExtensions = new Set(['doc', 'docx', 'xls', 'xlsx', 'pdf', 'csv', 'txt', 'jpg', 'jpeg', 'png']);
+const allowedExtensions = new Set(['doc', 'docx', 'odt', 'xls', 'xlsx', 'ods', 'pdf', 'csv', 'txt', 'jpg', 'jpeg', 'png']);
 const allowedRoles = new Set(['template', 'draft', 'final']);
 const allowedSources = new Set(['official_template', 'reconstructed', 'generated', 'user_upload', 'chatgpt_output']);
 
@@ -137,7 +144,9 @@ export async function commitCasePackage(preview: CasePackagePreview, forceImport
         format: source.format,
         sourceType: source.sourceType,
         reference: source.reference,
-        status: source.status,
+        status: importedDocumentStatus[source.status],
+        category: source.deliveryIds.length ? 'deliverable' : 'reference',
+        required: source.deliveryIds.length > 0,
         sortOrder: index,
         deliveryIds: source.deliveryIds.map((id) => deliveryMap.get(id)).filter((id): id is string => Boolean(id)),
       });
