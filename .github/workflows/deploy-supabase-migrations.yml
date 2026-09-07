@@ -55,7 +55,7 @@ jobs:
 
       - name: Link production project
         shell: bash
-        run: supabase link --project-ref "$SUPABASE_PROJECT_ID"
+        run: supabase link --project-ref "$SUPABASE_PROJECT_ID" --password "$SUPABASE_DB_PASSWORD"
 
       - name: Show migration status
         shell: bash
