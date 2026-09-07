@@ -53,6 +53,14 @@ jobs:
         with:
           version: 2.116.0
 
+      - name: Verify project access and project reference
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase projects list --output json \
+            | jq -e --arg project_ref "$SUPABASE_PROJECT_ID" \
+              'any(.[]; .id == $project_ref)' >/dev/null
+
       - name: Link production project
         shell: bash
         # Link explicitly so CI never prompts for production database credentials.
