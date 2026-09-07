@@ -145,7 +145,7 @@ events=data.map(row=>({id:'dbe-'+row.id,dbId:row.id,date:row.event_date,title:ro
 save();renderSchedule();
 document.getElementById('importStatus').textContent=`雲端行事曆已同步：${calendarCutoff()} 之後，共 ${events.length} 筆事件`;
 }
-async function initAuth(){let {data}=await sb.auth.getSession();currentUser=data.session?.user||null;updateAuthUI();if(currentUser){await loadCases();await syncClassesFromCloud();await syncProgressFromCloud();await syncCalendarFromCloud()}}
+async function initAuth(){let {data}=await sb.auth.getSession();currentUser=data.session?.user||null;updateAuthUI();if(currentUser){await syncClassesFromCloud();await syncProgressFromCloud();await syncCalendarFromCloud()}}
 
 function render(){renderClasses();renderSchedule()}
 document.getElementById('progressInput').addEventListener('keydown',e=>{
@@ -166,7 +166,7 @@ const ACTIVE_TAB_KEY='tp.activeWorkspaceTab';
 function activateWorkspace(tabName){
   document.querySelectorAll('.workspace-tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tabName));
   document.getElementById('teachingPage').classList.toggle('active',tabName==='teaching');
-  document.getElementById('controlPage').classList.toggle('active',tabName==='control');if(tabName==='control'&&currentUser)loadCases();
+  document.getElementById('controlPage').classList.toggle('active',tabName==='control')
   localStorage.setItem(ACTIVE_TAB_KEY,tabName);
 }
 function initWorkspaceTabs(){
