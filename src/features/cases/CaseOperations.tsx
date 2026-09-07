@@ -14,7 +14,14 @@ import type { CaseAggregate, CaseDocumentWithRelations } from './models';
 import type { DeliveryStatus, DocumentFormat, DocumentRole, DocumentStatus } from './types';
 
 const deliveryStatus: Record<DeliveryStatus, string> = { open: '待處理', doing: '處理中', done: '已完成' };
-const documentStatus: Record<DocumentStatus, string> = { missing: '缺檔', draft: '草稿', ready: '可繳交', submitted: '已繳交' };
+const documentStatus: Record<DocumentStatus, string> = {
+  not_started: '尚未開始',
+  in_progress: '製作中',
+  pending_approval: '待核章',
+  completed: '已完成',
+  submitted: '已送出',
+  not_required: '不需要',
+};
 const roleLabel: Record<DocumentRole, string> = { template: '範本', draft: '草稿', final: '正式檔' };
 
 interface Props {
@@ -65,6 +72,8 @@ export default function CaseOperations({ item, reload, report }: Props) {
       name: documentName,
       format,
       sourceType: 'user_upload',
+      category: 'deliverable',
+      required: true,
       deliveryIds: item.deliveries.map((delivery) => delivery.id),
       sortOrder: item.documents.length,
     }));
@@ -159,7 +168,7 @@ export default function CaseOperations({ item, reload, report }: Props) {
                   </select>
                   <label className="flex cursor-pointer items-center gap-1 rounded-md bg-blue-600 px-2.5 py-1.5 text-xs font-medium text-white">
                     <Upload className="h-3.5 w-3.5" />{uploading === document.id ? '上傳中…' : '上傳版本'}
-                    <input type="file" className="hidden" accept=".doc,.docx,.xls,.xlsx,.pdf,.csv,.txt,.jpg,.jpeg,.png" disabled={uploading === document.id} onChange={(e) => void upload(document, e)} />
+                    <input type="file" className="hidden" accept=".doc,.docx,.odt,.xls,.xlsx,.ods,.pdf,.csv,.txt,.jpg,.jpeg,.png" disabled={uploading === document.id} onChange={(e) => void upload(document, e)} />
                   </label>
                   <button onClick={() => window.confirm('刪除此繳交文件及全部版本？') && void act(() => deleteDocument(document.id))} className="p-1.5 text-slate-400 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
                 </div>
