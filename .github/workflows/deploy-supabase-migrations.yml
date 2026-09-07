@@ -57,7 +57,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          supabase projects list --output json > projects.json
+          curl --fail-with-body --silent --show-error \
+            https://api.supabase.com/v1/projects \
+            --header "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+            --output projects.json
 
       - name: Verify production project reference
         shell: bash
