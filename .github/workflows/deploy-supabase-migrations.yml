@@ -53,13 +53,18 @@ jobs:
         with:
           version: 2.116.0
 
-      - name: Verify project access and project reference
+      - name: Verify Supabase management access token
         shell: bash
         run: |
           set -euo pipefail
-          supabase projects list --output json \
-            | jq -e --arg project_ref "$SUPABASE_PROJECT_ID" \
-              'any(.[]; .id == $project_ref)' >/dev/null
+          supabase projects list --output json > projects.json
+
+      - name: Verify production project reference
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq -e --arg project_ref "$SUPABASE_PROJECT_ID" \
+            'any(.[]; .id == $project_ref)' projects.json >/dev/null
 
       - name: Link production project
         shell: bash
