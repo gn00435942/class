@@ -80,6 +80,10 @@ function toDocument(row: DbRow): CaseDocumentRecord {
     sourceType: row.source_type as DocumentSourceType,
     reference: String(row.reference ?? ''),
     status: row.status as DocumentStatus,
+    category: (row.category ?? 'deliverable') as CaseDocumentRecord['category'],
+    required: Boolean(row.required ?? true),
+    completedAt: row.completed_at ? String(row.completed_at) : null,
+    submittedAt: row.submitted_at ? String(row.submitted_at) : null,
     sortOrder: Number(row.sort_order ?? 0),
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
@@ -260,7 +264,9 @@ export async function createDocument(input: CreateDocumentInput): Promise<CaseDo
       format: input.format ?? 'other',
       source_type: input.sourceType ?? 'generated',
       reference: input.reference ?? '',
-      status: input.status ?? 'missing',
+      status: input.status ?? 'not_started',
+      category: input.category ?? 'deliverable',
+      required: input.required ?? true,
       sort_order: input.sortOrder ?? 0,
     })
     .select()
@@ -314,6 +320,14 @@ export async function updateDocument(
   if ('sourceType' in patch) payload.source_type = patch.sourceType;
   if ('reference' in patch) payload.reference = patch.reference ?? '';
   if ('status' in patch) payload.status = patch.status;
+  if ('category' in patch) payload.category = patch.category;
+  if ('required' in patch) payload.required = patch.required;
+  if ('status' in patch) {
+    payload.completed_at = ['completed', 'submitted'].includes(patch.status ?? '')
+      ? new Date().toISOString()
+      : null;
+    payload.submitted_at = patch.status === 'submitted' ? new Date().toISOString() : null;
+  }
   if ('sortOrder' in patch) payload.sort_order = patch.sortOrder;
 
   const { data, error } = await supabase.from('case_documents').update(payload).eq('id', id).select().single();
