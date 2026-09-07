@@ -3,6 +3,7 @@ import type {
   CaseStatus,
   DeliveryStatus,
   DocumentFormat,
+  DocumentCategory,
   DocumentRole,
   DocumentSourceType,
   DocumentStatus,
@@ -28,6 +29,10 @@ export interface CaseDocumentRecord {
   sourceType: DocumentSourceType;
   reference: string;
   status: DocumentStatus;
+  category: DocumentCategory;
+  required: boolean;
+  completedAt: string | null;
+  submittedAt: string | null;
   sortOrder: number;
   createdAt: string;
   updatedAt: string;
@@ -85,6 +90,8 @@ export interface CreateDocumentInput {
   sourceType?: DocumentSourceType;
   reference?: string;
   status?: DocumentStatus;
+  category?: DocumentCategory;
+  required?: boolean;
   sortOrder?: number;
   deliveryIds?: string[];
 }
