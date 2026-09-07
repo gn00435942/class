@@ -55,7 +55,7 @@ jobs:
 
       - name: Link production project
         shell: bash
-        # The password may take a few minutes to propagate after a dashboard reset.
+        # Link explicitly so CI never prompts for production database credentials.
         run: supabase link --project-ref "$SUPABASE_PROJECT_ID" --password "$SUPABASE_DB_PASSWORD"
 
       - name: Show migration status
