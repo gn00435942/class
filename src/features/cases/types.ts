@@ -1,6 +1,14 @@
 export type CaseStatus = 'open' | 'doing' | 'done' | 'archived';
 export type DeliveryStatus = 'open' | 'doing' | 'done';
-export type DocumentStatus = 'missing' | 'draft' | 'ready' | 'submitted';
+export type DocumentStatus =
+  | 'not_started'
+  | 'in_progress'
+  | 'pending_approval'
+  | 'completed'
+  | 'submitted'
+  | 'not_required';
+export type DocumentCategory = 'deliverable' | 'reference';
+export type PackageDocumentStatus = 'missing' | 'draft' | 'ready' | 'submitted';
 export type DocumentFormat =
   | 'doc' | 'docx' | 'xls' | 'xlsx' | 'pdf' | 'csv' | 'txt'
   | 'paper' | 'online_form' | 'other';
@@ -38,7 +46,7 @@ export interface CasePackageV1 {
     format: DocumentFormat;
     sourceType: DocumentSourceType;
     reference: string;
-    status: DocumentStatus;
+    status: PackageDocumentStatus;
     deliveryIds: string[];
   }>;
   artifacts: Array<{
